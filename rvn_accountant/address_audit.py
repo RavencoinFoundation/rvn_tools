@@ -3,7 +3,10 @@
 # Reads from APIs to get transactions
 # Gets the transaction information 
 # Gets the price (at the time)
+# Shows running balance of address from beginning
+# Checks running balance against reported balance from API
 # Outputs to console - CSV compatible with Google Sheets
+
 
 import os
 import subprocess
@@ -60,13 +63,6 @@ def get_balance(addr):
 	print("Balance: " + str(balinfo['balance']))
 	return(balinfo['balance'])
 
-# def payment_amount(txinfo, addr):
-# 	#print(vins)
-# 	for vin in txinfo['vin']:
-# 		if vin.get('addr') == addr:
-# 			return vin['value'];
-# 	return 0.0
-
 
 def payment_amount(txinfo, addr):
 	totvalue = 0.0
@@ -75,7 +71,6 @@ def payment_amount(txinfo, addr):
 		if vin.get('addr') == addr:
 			totvalue += vin['value']
 	return float(format(totvalue, '.8f'))
-
 
 
 def get_rvn_qty_deposit(addr, tx):
