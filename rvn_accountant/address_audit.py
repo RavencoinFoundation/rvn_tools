@@ -18,13 +18,54 @@ RavencoinPriceHistory = dict()
 
 
 api_root = 'https://api.ravencoin.org/api/'
+rvnsum = 0.0
+master_balance = 0.0
 
-
-def scan_address(addr, start_date_epoch, end_date_epoch):
+def audit_address(addr):
+	global rvnsum
+	global master_balance
+	rvnsum = 0
+	tot = 0
+	print("Auditing: " + addr)
+	balance = get_balance(addr);
 	txids = get_txids(addr)
 	for tx in reversed(txids):
 		#print (tx)
-		qty = get_rvn_qty_deposit(addr, tx, start_date_epoch, end_date_epoch)
+		tot = get_rvn_qty_deposit(addr, tx)
+
+	master_balance += tot
+	print_summary(balance, tot)
+
+
+def print_summary(balance, total):
+	print(format(balance, '.8f') + ' = ' + format(total, '.8f'))
+	#print(bal)
+	#print(total)
+	if (balance == total):
+		print("Audit passed")
+	else:
+		print("Audit failed")
+	print('')
+	print('')
+
+
+def print_master_balance():
+	global master_balance
+	print('')
+	print("Balance of all addresses: " + format(master_balance,'.8f'))
+
+def get_balance(addr):
+	url = api_root+'addr'+'/'+addr
+	balinfo = get_json(url)
+	print("Balance: " + str(balinfo['balance']))
+	return(balinfo['balance'])
+
+# def payment_amount(txinfo, addr):
+# 	#print(vins)
+# 	for vin in txinfo['vin']:
+# 		if vin.get('addr') == addr:
+# 			return vin['value'];
+# 	return 0.0
 
 
 def payment_amount(txinfo, addr):
@@ -37,7 +78,8 @@ def payment_amount(txinfo, addr):
 
 
 
-def get_rvn_qty_deposit(addr, tx, start_date_epoch, end_date_epoch):
+def get_rvn_qty_deposit(addr, tx):
+	global rvnsum
 	url = api_root+'tx'+'/'+tx
 	#print(url)   #debug
 	txinfo = get_json(url)
@@ -50,14 +92,15 @@ def get_rvn_qty_deposit(addr, tx, start_date_epoch, end_date_epoch):
 			if float(vout['value']) > 0:
 				if vout['scriptPubKey']['addresses'][0] == addr:
 					#print(txinfo)
-					if ( (txinfo['blocktime'] >= start_date_epoch) and (txinfo['blocktime'] < end_date_epoch) ):
-						price = look_up_price(txinfo['blocktime'])
-						print(str(epoch_to_days_since_1900(txinfo['blocktime'])) + ',' + tx + ',' + vout['scriptPubKey']['addresses'][0] + ',' + str(float(vout['value']) - valueIn) + ',' + price)
+					price = look_up_price(txinfo['blocktime'])
+					rvn = float(vout['value']) - valueIn
+					rvnsum += rvn
+					print(str(epoch_to_days_since_1900(txinfo['blocktime'])) + ',' + tx + ',' + vout['scriptPubKey']['addresses'][0] + ',' + str(rvn) + ',' + price + " Tot: " + format(rvnsum, '.8f'))
 	except:
 		print('Problem with tx: ' + tx)
 		print(e.message)
 
-	return 0
+	return float(format(rvnsum, '.8f'))
 
 
 def epoch_to_days_since_1900(epoch):
@@ -113,27 +156,21 @@ except:
 	print("Ravencoin Price import failed - Look for updated RavencoinPriceHistory.csv")
 	print(e.message)
 
-#start_date = 1609484400    #Jan 01 2021 00:00:00 UTC
-#end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
 
-#Before start
-start_date = 1514815200    #Jan 01 2018 00:00:00 UTC
-#end_date   = 1609484400    #Jan 01 2021 00:00:00 UTC
-#end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
-end_date   = 1672581600    #Jan 01 2023 00:00:00 UTC
+audit_address("RVM93VRB9jn6FXps9mMu4iftxt7BpGexGM")
+audit_address("RXAnmAHpGxsN8NnEcmg3DGZw1oS2WrNWiN")
+audit_address("RCiwkUmjomjLimfg7WetZKWM8zsuX9ATh7")
+audit_address("RDLLeDZf4wgaEn16CfeEhKDvuVEz5Ne8ch")
+audit_address("RQgaUTY2TXqngsvPJW3EjqnPVxH5yahqeB")
+audit_address("RQYtTcMaUX9XZER8cGz2dLYPGycNfFpaSW")
+audit_address("RANFH4yGXr766LWoCSv2PYXH5NuyMSNG2S")
+audit_address("RJzkp2xcXkEQYXYfZzdBTrvCNxy2GKqjLn")
+audit_address("RBzm8wmbEcdFxAWAZ2stkxSN615uDgvqCd")
+audit_address("RBP8BcvCm25oMp3WQd3E2RFrE1kaYvLgub")
+audit_address("RR3wMq5pjmFf8gd2iJLb3qEtjR3xjAEaR8")
 
-print("Date,txid,address,rvn_qty,rvn_price")
-scan_address("RVM93VRB9jn6FXps9mMu4iftxt7BpGexGM", start_date, end_date)
-scan_address("RXAnmAHpGxsN8NnEcmg3DGZw1oS2WrNWiN", start_date, end_date)
-scan_address("RCiwkUmjomjLimfg7WetZKWM8zsuX9ATh7", start_date, end_date)
-scan_address("RDLLeDZf4wgaEn16CfeEhKDvuVEz5Ne8ch", start_date, end_date)
-scan_address("RQgaUTY2TXqngsvPJW3EjqnPVxH5yahqeB", start_date, end_date)
-scan_address("RQYtTcMaUX9XZER8cGz2dLYPGycNfFpaSW", start_date, end_date)
-scan_address("RANFH4yGXr766LWoCSv2PYXH5NuyMSNG2S", start_date, end_date)
-scan_address("RJzkp2xcXkEQYXYfZzdBTrvCNxy2GKqjLn", start_date, end_date)
-scan_address("RBzm8wmbEcdFxAWAZ2stkxSN615uDgvqCd", start_date, end_date)
-scan_address("RBP8BcvCm25oMp3WQd3E2RFrE1kaYvLgub", start_date, end_date)
-scan_address("RR3wMq5pjmFf8gd2iJLb3qEtjR3xjAEaR8", start_date, end_date)
+print_master_balance()
+
 
 
  
