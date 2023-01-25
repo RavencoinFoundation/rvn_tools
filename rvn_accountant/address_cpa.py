@@ -113,14 +113,14 @@ except:
 	print("Ravencoin Price import failed - Look for updated RavencoinPriceHistory.csv")
 	print(e.message)
 
-#start_date = 1609484400    #Jan 01 2021 00:00:00 UTC
-#end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
+start_date = 1609484400    #Jan 01 2021 00:00:00 UTC
+end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
 
 #Before start
-start_date = 1514815200    #Jan 01 2018 00:00:00 UTC
+#start_date = 1514815200    #Jan 01 2018 00:00:00 UTC
 #end_date   = 1609484400    #Jan 01 2021 00:00:00 UTC
 #end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
-end_date   = 1672581600    #Jan 01 2023 00:00:00 UTC
+#end_date   = 1672581600    #Jan 01 2023 00:00:00 UTC
 
 print("Date,txid,address,rvn_qty,rvn_price")
 scan_address("RVM93VRB9jn6FXps9mMu4iftxt7BpGexGM", start_date, end_date)
@@ -135,8 +135,6 @@ scan_address("RBzm8wmbEcdFxAWAZ2stkxSN615uDgvqCd", start_date, end_date)
 scan_address("RBP8BcvCm25oMp3WQd3E2RFrE1kaYvLgub", start_date, end_date)
 scan_address("RR3wMq5pjmFf8gd2iJLb3qEtjR3xjAEaR8", start_date, end_date)
 
-
- 
 
 
 
