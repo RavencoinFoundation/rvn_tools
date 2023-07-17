@@ -96,7 +96,7 @@ def load_price_data(csv_file):
 	    reader = csv.DictReader(csvfile)
 	    for daily_price in reader:
 	    	#RavencoinPriceHistory[] = daily_price.get('Open')
-	    	RavencoinPriceHistory[convert_date_string_to_timestamp(daily_price.get('Date'))] = daily_price.get('Open')
+	    	RavencoinPriceHistory[convert_date_string_to_timestamp(daily_price.get('Date'))] = daily_price.get('Open*')
 	    	#DEBUG for price data import
 	    	#print(daily_price.get('Date'))
 	    	#print(convert_date_string_to_timestamp(daily_price.get('Date')))
@@ -113,14 +113,14 @@ except:
 	print("Ravencoin Price import failed - Look for updated RavencoinPriceHistory.csv")
 	print(e.message)
 
-start_date = 1609484400    #Jan 01 2021 00:00:00 UTC
-end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
+#start_date = 1609484400    #Jan 01 2021 00:00:00 UTC
+#end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
 
 #Before start
 #start_date = 1514815200    #Jan 01 2018 00:00:00 UTC
-#end_date   = 1609484400    #Jan 01 2021 00:00:00 UTC
-#end_date   = 1641020400    #Jan 01 2022 00:00:00 UTC
-#end_date   = 1672581600    #Jan 01 2023 00:00:00 UTC
+#start_date   = 1609484400   #Jan 01 2021 00:00:00 UTC
+start_date     = 1641020400    #Jan 01 2022 00:00:00 UTC
+end_date       = 1672581600    #Jan 01 2023 00:00:00 UTC
 
 print("Date,txid,address,rvn_qty,rvn_price")
 scan_address("RVM93VRB9jn6FXps9mMu4iftxt7BpGexGM", start_date, end_date)
@@ -136,7 +136,12 @@ scan_address("RBP8BcvCm25oMp3WQd3E2RFrE1kaYvLgub", start_date, end_date)
 scan_address("RR3wMq5pjmFf8gd2iJLb3qEtjR3xjAEaR8", start_date, end_date)
 
 
-
+scan_address("RSEwHDtjaGXo4Wzk7NKUGvgh5MgiRvtmxj", start_date, end_date)
+scan_address("RLMChP5Pks8zweYRbjGT6EUyUBCV4WrsXx", start_date, end_date)
+scan_address("RSsNZ6zetA71PzkRdB8GUec7pdCPTwWyCH", start_date, end_date)
+scan_address("RSRPZbCKPLBhLprf9m2iRdsTMkSHndPfTA", start_date, end_date)
+scan_address("RSv5FM1wFpJmBx7JRyZGo4caCrqU4VE7Y5", start_date, end_date)
+scan_address("RDiazTh9vpZ19oAiwTW9dksH2N1w3WHPNM", start_date, end_date)
 
 
 

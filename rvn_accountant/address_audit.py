@@ -23,6 +23,7 @@ RavencoinPriceHistory = dict()
 api_root = 'https://api.ravencoin.org/api/'
 rvnsum = 0.0
 master_balance = 0.0
+filter_up_to = 1672581600   #Jan 01 2023 00:00:00 UTC
 
 def audit_address(addr):
 	global rvnsum
@@ -78,6 +79,7 @@ def get_rvn_qty_deposit(addr, tx):
 	url = api_root+'tx'+'/'+tx
 	#print(url)   #debug
 	txinfo = get_json(url)
+	#print(txinfo)
 
 	#If we are paying, then the payment amount comes from this address, and the change goes back to vout (will show as negative)
 	valueIn = payment_amount(txinfo, addr)
@@ -86,11 +88,15 @@ def get_rvn_qty_deposit(addr, tx):
 		for vout in txinfo['vout']:
 			if float(vout['value']) > 0:
 				if vout['scriptPubKey']['addresses'][0] == addr:
-					#print(txinfo)
-					price = look_up_price(txinfo['blocktime'])
-					rvn = float(vout['value']) - valueIn
-					rvnsum += rvn
-					print(str(epoch_to_days_since_1900(txinfo['blocktime'])) + ',' + tx + ',' + vout['scriptPubKey']['addresses'][0] + ',' + str(rvn) + ',' + price + " Tot: " + format(rvnsum, '.8f'))
+					if (txinfo['time'] < filter_up_to):
+						#print(txinfo)
+						price = look_up_price(txinfo['blocktime'])
+						print(price)
+						rvn = float(vout['value']) - valueIn
+						rvnsum += rvn
+						print(str(epoch_to_days_since_1900(txinfo['blocktime'])) + ',' + tx + ',' + vout['scriptPubKey']['addresses'][0] + ',' + str(rvn) + ',' + price + " Tot: " + format(rvnsum, '.8f'))
+					else:
+						print("Filtered out " + str(txinfo['time']))
 	except:
 		print('Problem with tx: ' + tx)
 		print(e.message)
@@ -105,7 +111,7 @@ def epoch_to_days_since_1900(epoch):
 def look_up_price(epoch_time):
 	secs_per_day = 24*60*60
 	day_epoch_time = int(epoch_time / secs_per_day) * secs_per_day
-	#print("Looking up " + str(day_epoch_time))     #debug
+	print("Looking up " + str(day_epoch_time))     #debug
 	return RavencoinPriceHistory[day_epoch_time]
 
 
@@ -134,11 +140,11 @@ def load_price_data(csv_file):
 	    reader = csv.DictReader(csvfile)
 	    for daily_price in reader:
 	    	#RavencoinPriceHistory[] = daily_price.get('Open')
-	    	RavencoinPriceHistory[convert_date_string_to_timestamp(daily_price.get('Date'))] = daily_price.get('Open')
+	    	RavencoinPriceHistory[convert_date_string_to_timestamp(daily_price.get('Date'))] = daily_price.get('Open*')
 	    	#DEBUG for price data import
 	    	#print(daily_price.get('Date'))
 	    	#print(convert_date_string_to_timestamp(daily_price.get('Date')))
-	    	#print(daily_price.get('Open'))
+	    	#print(daily_price.get('Open*'))
 
 
 
@@ -146,7 +152,9 @@ def load_price_data(csv_file):
 load_price_data('RavencoinPriceHistory.csv')
 #print(RavencoinPriceHistory)
 try:
-	test_price = RavencoinPriceHistory[1660176000]
+	#test_price = RavencoinPriceHistory[1660176000]
+	test_price = look_up_price(1660176000)
+	#print(test_price)
 except:
 	print("Ravencoin Price import failed - Look for updated RavencoinPriceHistory.csv")
 	print(e.message)
@@ -163,6 +171,18 @@ audit_address("RJzkp2xcXkEQYXYfZzdBTrvCNxy2GKqjLn")
 audit_address("RBzm8wmbEcdFxAWAZ2stkxSN615uDgvqCd")
 audit_address("RBP8BcvCm25oMp3WQd3E2RFrE1kaYvLgub")
 audit_address("RR3wMq5pjmFf8gd2iJLb3qEtjR3xjAEaR8")
+
+
+#New After EVR addresses
+audit_address("RSEwHDtjaGXo4Wzk7NKUGvgh5MgiRvtmxj")
+audit_address("RLMChP5Pks8zweYRbjGT6EUyUBCV4WrsXx")
+audit_address("RSsNZ6zetA71PzkRdB8GUec7pdCPTwWyCH")
+audit_address("RSRPZbCKPLBhLprf9m2iRdsTMkSHndPfTA")
+audit_address("RSv5FM1wFpJmBx7JRyZGo4caCrqU4VE7Y5")
+audit_address("RDiazTh9vpZ19oAiwTW9dksH2N1w3WHPNM")
+
+
+
 
 print_master_balance()
 
